@@ -1,0 +1,100 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id                Int              @id @default(autoincrement())
+  createdAt         DateTime         @default(now())
+  updatedAt         DateTime         @updatedAt
+  name              String
+  email             String           @unique
+  password          String
+  role              Role             @default(Asisten)
+  refresh_token     String?          @db.LongText
+  userPreferences   userPreferences? @relation(fields: [userPreferencesId], references: [id])
+  userPreferencesId Int?             @unique
+}
+
+model userPreferences {
+  id            Int      @id @default(autoincrement())
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  profile_photo String?
+  nrp           String?
+  no_telp       String?
+  user          User?
+}
+
+model Agenda {
+  id           Int           @id @default(autoincrement())
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+  nama_agenda  String
+  tanggal      String
+  deskripsi    String
+  kode_absensi String?
+  absensi      AbsenAgenda[]
+}
+
+model AbsenPiket {
+  id           Int      @id @default(autoincrement())
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  nama_asisten String
+  hari         String
+  berita_acara String
+}
+
+model AbsenAgenda {
+  id           Int         @id @default(autoincrement())
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
+  nama_asisten String
+  status       absenAg     @default(Hadir)
+  status_absen statusAbsen
+  agenda       Agenda      @relation(fields: [agendaId], references: [id])
+  agendaId     Int
+}
+
+model EcsPinjam {
+  id              Int          @id @default(autoincrement())
+  createdAt       DateTime     @default(now())
+  updatedAt       DateTime     @updatedAt
+  nama_peminjam   String
+  nama_barang     String
+  status          statusBarang @default(Dipinjam)
+  kepentingan     String
+  tanggal_pinjam  String
+  tanggal_kembali String
+  foto_barang     String
+  jaminan         String
+  signature       String       @db.LongText
+}
+
+enum Role {
+  Admin
+  Asisten
+}
+
+enum absenAg {
+  Hadir
+  Tidak
+}
+
+enum statusBarang {
+  Dipinjam
+  Kembali
+}
+
+enum statusAbsen {
+  sendiri
+  diabsenkan
+}
